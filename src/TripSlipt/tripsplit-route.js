@@ -1,12 +1,15 @@
-const axios = require("axios");
 const db = require("./tripsplit-model");
+const bcrypt = require("bcryptjs");
 
-const { myBcrypt, validateUser } = require("./tripsplit-middleware");
+const {
+  validateUser,
+  validateUserPassword
+} = require("./tripsplit-middleware");
 
 module.exports = server => {
   server.get("/", home);
-  server.post("/api/register", register);
-  server.post("/api/login", login);
+  server.post("/api/register", validateUser, register);
+  server.post("/api/login", validateUser, validateUserPassword, login);
 };
 
 function home(req, res) {
@@ -17,7 +20,7 @@ function register(req, res) {
   const { email, password } = req.body;
   const data = {
     email: email,
-    password: myBcrypt(password, 10)
+    password: bcrypt.hash(password, 10)
   };
   db.createUser(data)
     .then(dbResponse => {
