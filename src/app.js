@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 
-const configureRoutes = require("./TripSlipt/tripsplit-route");
+const configureRoutes = require("./TripSlipt/tripsplit-route.js");
 require('dotenv').config()
 
 const server = express();
