@@ -1,8 +1,7 @@
 const jwt = require("jsonwebtoken");
-const db = require("../database/user-model");
+const db = require("./tripsplit-model");
 const bcrypt = require("bcryptjs");
 
-// quickly see what this file exports
 module.exports = {
   validateUser,
   validateUserPassword
