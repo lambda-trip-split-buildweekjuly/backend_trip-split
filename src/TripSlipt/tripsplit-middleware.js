@@ -39,7 +39,7 @@ async function validateUserPassword(req, res, next) {
   const { email, password } = req.body;
   try {
     let userData = await db.getUserByEmail(email);
-    let compareOutput = bcrypt.compare(password, userData.password);
+    let compareOutput = bcrypt.compareSync(password, userData.password);
     if (!compareOutput) {
       return res.status(401).json({ error: "Incorrect Password" });
     }
@@ -48,11 +48,12 @@ async function validateUserPassword(req, res, next) {
         exp: Math.floor(Date.now() / 1000) + 60 * 60,
         data: userData.id
       },
-      process.env.jwt_SECRET
+      process.env.JWT_SECRET
     );
     req.user = { token: Encrypted };
     next();
   } catch (err) {
+    console.log(err);
     return res.status(401).json({ error: "Incorrect Email" });
   }
 }

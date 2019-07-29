@@ -20,7 +20,7 @@ function register(req, res) {
   const { email, password } = req.body;
   const data = {
     email: email,
-    password: bcrypt.hash(password, 10)
+    password: bcrypt.hashSync(password, 10)
   };
   db.createUser(data)
     .then(dbResponse => {
@@ -29,6 +29,7 @@ function register(req, res) {
       });
     })
     .catch(err => {
+        console.log(err)
       if (err.code === "SQLITE_CONSTRAINT") {
         return res.status(500).json({ error: "Email Already Exit" });
       }
