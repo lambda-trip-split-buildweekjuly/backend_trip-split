@@ -1,11 +1,12 @@
 const axios = require("axios");
 const db = require("./tripsplit-model");
 
-const { myBcrypt, validateUser } = require("../auth/authenticate");
+const { myBcrypt, validateUser } = require("./tripsplit-middleware");
 
 module.exports = server => {
-  server.get("/api/", home);
-  server.post("/api/register", validateUser, register);
+  server.get("/", home);
+  server.post("/api/register", register);
+  server.post("/api/login", login);
 };
 
 function home(req, res) {
@@ -13,10 +14,9 @@ function home(req, res) {
 }
 
 function register(req, res) {
-  // implement user registration
-  const { username, password } = req.body;
+  const { email, password } = req.body;
   const data = {
-    username: username,
+    email: email,
     password: myBcrypt(password, 10)
   };
   db.createUser(data)
@@ -27,8 +27,12 @@ function register(req, res) {
     })
     .catch(err => {
       if (err.code === "SQLITE_CONSTRAINT") {
-        return res.status(500).json({ error: "Username Already Exit" });
+        return res.status(500).json({ error: "Email Already Exit" });
       }
       res.status(500).send(err);
     });
+}
+
+function login(req, res) {
+  res.status(200).json({ message: "Welcome", token: req.user.token });
 }

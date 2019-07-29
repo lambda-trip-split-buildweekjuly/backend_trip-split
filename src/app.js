@@ -11,7 +11,7 @@ server.use(helmet());
 server.use(cors(), logger);
 server.use(express.json());
 
-// configureRoutes(server);
+configureRoutes(server);
 function logger(req, res, next) {
   console.log(req.method, req.url, Date.now());
   next();
