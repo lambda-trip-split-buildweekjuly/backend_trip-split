@@ -9,7 +9,8 @@ module.exports = {
   patchUserById,
   createTrip,
   getAllTrips,
-  getTripById
+  getTripById,
+  addExpenses
 };
 
 function getUserByEmail(email) {
@@ -48,17 +49,50 @@ function patchUserById(id, data) {
     .update(data)
     .returning("*");
 }
-function createTrip(data) {
-  return db("trips")
-    .insert(data)
-    .returning("*");
-}
-function getAllTrips() {
-  return db("trips")
+// function createTrip(data, peoples) {
+//   return db("trips")
+//     .insert(data)
+//     .returning("*")
+//     .then(output => createPeople(output.id, peoples));
+// }
+
+// function createPeople(id, peoples) {
+//   peoples.map(elem => {
+//     const peopleData = {
+//       people_name: elem,
+//       trip_id: id
+//     };
+//     return db("peoples").insert(peopleData);
+//   });
+
+// }
+function createTrip(data, peoples) {
+  db.transaction(function(trx) {
+    return trx
+      .insert(data)
+      .into("trips")
+      .returning("*")
+      .then(function(output) {
+        peoples.forEach(elem => (elem.trip_id = output[0].id));
+        return trx("peoples").insert(peoples);
+      });
+  })
+    .then(function(inserts) {
+      return inserts
+    })
+    .catch(function(error) {
+      return error;
+    });
 }
 
-function getTripById(id){
-  return db("trips")
-  .where({ id })
-  .first();
+function getAllTrips() {
+  return db("trips");
 }
+
+function getTripById(id) {
+  return db("trips")
+    .where({ id })
+    .first();
+}
+
+function addExpenses() {}

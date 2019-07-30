@@ -76,8 +76,27 @@ async function getTripById(req, res) {
 }
 
 async function createTrip(req, res) {
+  const { trip_name, trip_destination, trip_date, peoples } = req.body;
+  const tripData = {
+    trip_name: trip_name,
+    trip_destination: trip_destination,
+    trip_no_of_people: peoples.length,
+    trip_date: trip_date,
+    user_id: req.user.token["id"]
+  };
   try {
-    const data = await db.createTrip({
+    const data = await db.createTrip(tripData, peoples);
+    return res.status(201).json({
+      trip: 'Trip Saved'
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
+
+async function addExpenses(req, res) {
+  try {
+    const data = await db.addExpenses({
       ...req.body,
       user_id: req.user.token["id"]
     });
@@ -88,8 +107,6 @@ async function createTrip(req, res) {
     res.status(500).send(err);
   }
 }
-
-async function addExpenses(req, res) {}
 
 async function updateUserById(req, res) {
   const { id } = req.params;
