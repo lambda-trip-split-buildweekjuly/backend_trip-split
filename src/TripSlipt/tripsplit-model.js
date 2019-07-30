@@ -5,7 +5,8 @@ module.exports = {
   getUserByEmail,
   getAllUsers,
   getUserById,
-  deleteUserById
+  deleteUserById,
+  patchUserById
 };
 
 function getUserByEmail(email) {
@@ -37,4 +38,10 @@ function deleteUserById(id) {
   return db("users")
     .where({ id })
     .del();
+}
+function patchUserById(id, data) {
+  return db("users")
+    .where({ id })
+    .update(data)
+    .returning("*");
 }

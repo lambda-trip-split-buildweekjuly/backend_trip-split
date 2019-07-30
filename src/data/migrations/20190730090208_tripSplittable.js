@@ -30,9 +30,9 @@ exports.up = function(knex) {
     .createTable("peoples", tbl => {
       tbl.increments();
       tbl.string("people_name", 255).notNullable();
-      tbl.integer("people_amount_paid", 11).defaultTo(0);
-      tbl.integer("people_amount_owned", 11).defaultTo(0);
-      tbl.integer("people_amount_owning", 11).defaultTo(0);
+      tbl.integer("people_amount_paid", 11).notNullable();
+      tbl.integer("people_amount_owned", 11).notNullable();
+      tbl.integer("people_amount_owning", 11).notNullable();
       tbl
         .integer("trip_id")
         .unsigned()

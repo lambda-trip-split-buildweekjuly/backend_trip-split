@@ -8,6 +8,7 @@ module.exports = {
       password: "080timi2323",
       database: "trip-split"
     },
+    useNullAsDefault: true,
     migrations: {
       directory: "./src/data/migrations",
       tableName: "dbmigrations"
@@ -28,6 +29,7 @@ module.exports = {
   production: {
     client: "pg",
     connection: process.env.DATABASE_URL,
+    useNullAsDefault: true,
     migrations: {
       directory: "./src/data/migrations",
       tableName: "dbmigrations"

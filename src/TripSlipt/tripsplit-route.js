@@ -10,7 +10,7 @@ module.exports = server => {
 
   server.get("/api/users", getAllUsers);
   server.get("/api/users/:id", getUserById);
-  server.patch("/api/users/:id", patchUserById);
+  server.patch("/api/users/:id", updateUserById);
   server.delete("/api/users/:id", deleteUserById);
 
   server.get("/api/trips", getAllTrips);
@@ -56,7 +56,23 @@ async function createTrip(req, res) {}
 
 async function addExpenses(req, res) {}
 
-async function patchUserById(req, res) {}
+async function updateUserById(req, res) {
+  const { id } = req.params;
+  const { dataUpdate } = req.body;
+  try {
+    const data = await db.patchUserById(id, dataUpdate);
+    if (data === 0) {
+      return res.status(200).json({
+        user: `Delete failed User doesn't exist`
+      });
+    }
+    return res.status(200).json({
+      user: `user with id No-${id} deleted`
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
 
 async function deleteUserById(req, res) {
   const { id } = req.params;

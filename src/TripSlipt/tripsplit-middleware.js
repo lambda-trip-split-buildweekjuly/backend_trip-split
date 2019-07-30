@@ -39,7 +39,7 @@ function RegexEmailValidation(email) {
 // }
 
 function verifyNewUser(req, res, next) {
-  const { email, password, name } = req.body;
+  const { email, password, name, role } = req.body;
   if (!req.body) {
     return res.status(400).json({
       message: "missing user data"
@@ -61,8 +61,17 @@ function verifyNewUser(req, res, next) {
     return res.status(400).json({
       message: "missing required password field"
     });
+  } else if (
+    !role ||
+    role.trim().length < 1 ||
+    role.toLowerCase() === "user" ||
+    role.toLowerCase() === "admin"
+  ) {
+    return res.status(400).json({
+      message: "missing or invalid role field"
+    });
   }
-  next()
+  next();
 }
 
 async function authUserLogin(req, res, next) {
