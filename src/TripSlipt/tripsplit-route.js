@@ -64,7 +64,16 @@ async function getAllTrips(req, res) {
   }
 }
 
-async function getTripById(req, res) {}
+async function getTripById(req, res) {
+  try {
+    const data = await db.getTripById(req.params.id);
+    return res.status(200).json({
+      Trip: data
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
 
 async function createTrip(req, res) {
   try {
