@@ -7,7 +7,8 @@ module.exports = {
   getUserById,
   deleteUserById,
   patchUserById,
-  createTrip
+  createTrip,
+  getAllTrips
 };
 
 function getUserByEmail(email) {
@@ -50,4 +51,7 @@ function createTrip(data) {
   return db("trips")
     .insert(data)
     .returning("*");
+}
+function getAllTrips() {
+  return db("trips")
 }

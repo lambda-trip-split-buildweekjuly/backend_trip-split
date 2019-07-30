@@ -53,7 +53,16 @@ function register(req, res) {
     });
 }
 
-async function getAllTrips(req, res) {}
+async function getAllTrips(req, res) {
+  try {
+    const data = await db.getAllTrips();
+    return res.status(200).json({
+      AllTrips: data
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
 
 async function getTripById(req, res) {}
 
