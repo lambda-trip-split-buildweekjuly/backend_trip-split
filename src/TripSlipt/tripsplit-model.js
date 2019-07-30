@@ -1,8 +1,9 @@
-const db = require('../data/dbConfig');
+const db = require("../data/dbConfig");
 
 module.exports = {
   createUser,
-  getUserByEmail
+  getUserByEmail,
+  getAllUsers
 };
 
 function getUserByEmail(email) {
@@ -20,5 +21,8 @@ function getUserByEmail(email) {
 function createUser(data) {
   return db("users")
     .insert(data)
-    .returning('*')
+    .returning("*");
+}
+function getAllUsers() {
+  return db("users");
 }

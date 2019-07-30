@@ -18,6 +18,14 @@ exports.up = function(knex) {
         .inTable("expenses")
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
+      tbl
+        .integer("user_id")
+        .unsigned()
+        .notNullable()
+        .references("id")
+        .inTable("users")
+        .onUpdate("CASCADE")
+        .onDelete("CASCADE");
     })
     .createTable("peoples", tbl => {
       tbl.increments();
@@ -45,7 +53,7 @@ exports.up = function(knex) {
 
 exports.down = function(knex, Promise) {
   return knex.schema
-    .dropTableIfExists("trips")
     .dropTableIfExists("peoples")
+    .dropTableIfExists("trips")
     .dropTableIfExists("expenses");
 };

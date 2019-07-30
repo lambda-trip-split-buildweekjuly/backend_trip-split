@@ -5,8 +5,18 @@ const { verifyNewUser, authUserLogin } = require("./tripsplit-middleware");
 
 module.exports = server => {
   server.get("/", home);
-  server.post("/api/register", verifyNewUser, register);
-  server.post("/api/login", authUserLogin, login);
+  server.post("/api/auth/register", verifyNewUser, register);
+  server.post("/api/auth/login", authUserLogin, login);
+
+  server.get("/api/users", getAllUsers);
+  server.get("/api/users/:id", getUserById);
+  server.patch("/api/users/:id", getUserById);
+  server.delete("/api/users/:id", getUserById);
+
+  server.get("/api/trips", getAllTrips);
+  server.get("/api/trips/:id", getTripById);
+  server.post("/api/trips", createTrip);
+  server.post("/api/expenses", addExpenses);
 };
 
 function home(req, res) {
@@ -38,4 +48,23 @@ function register(req, res) {
     });
 }
 
+function getAllTrips() {}
 
+function getTripById() {}
+
+function createTrip() {}
+
+function addExpenses() {}
+
+async function getAllUsers(req, res) {
+  try {
+    const data = await db.getAllUsers();
+    return res.status(200).json({
+      AllUsers: data
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
+
+function getUserById() {}
