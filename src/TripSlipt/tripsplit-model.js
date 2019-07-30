@@ -6,7 +6,8 @@ module.exports = {
   getAllUsers,
   getUserById,
   deleteUserById,
-  patchUserById
+  patchUserById,
+  createTrip
 };
 
 function getUserByEmail(email) {
@@ -43,5 +44,10 @@ function patchUserById(id, data) {
   return db("users")
     .where({ id })
     .update(data)
+    .returning("*");
+}
+function createTrip(data) {
+  return db("trips")
+    .insert(data)
     .returning("*");
 }

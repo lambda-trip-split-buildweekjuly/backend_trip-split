@@ -9,7 +9,7 @@ exports.up = function(knex) {
       tbl.increments();
       tbl.string("trip_name", 255).notNullable();
       tbl.string("trip_destination", 255).notNullable();
-      tbl.string("trip_no_of_people", 255).notNullable();
+      tbl.integer("trip_no_of_people", 255).notNullable();
       tbl.string("trip_date", 255).notNullable();
       tbl
         .integer("expense_id")

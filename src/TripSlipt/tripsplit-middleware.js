@@ -4,7 +4,8 @@ const bcrypt = require("bcryptjs");
 
 module.exports = {
   verifyNewUser,
-  authUserLogin
+  authUserLogin,
+  authUser
 };
 
 function RegexEmailValidation(email) {
@@ -102,16 +103,31 @@ async function authUserLogin(req, res, next) {
     if (!compareOutput) {
       return res.status(401).json({ error: "Invalid Password" });
     }
-    const Encrypted = jwt.sign(
+    const encrypted = jwt.sign(
       {
         exp: Math.floor(Date.now() / 1000) + 60 * 60,
-        data: userData.id
+        id: userData.id
       },
       process.env.JWT_SECRET
     );
-    req.user = { token: Encrypted };
+    req.user = { token: encrypted };
     next();
   } catch (err) {
     return res.status(401).json({ error: "Incorrect Email" });
+  }
+}
+
+async function authUser(req, res, next) {
+  const header = req.headers["authorization"];
+  try {
+    jwt.verify(header, process.env.JWT_SECRET, function(err, decoded) {
+      if (err) {
+        return res.status(401).json({ message: "Invalid Token" });
+      }
+      req.user = { token: decoded };
+      next();
+    });
+  } catch (err) {
+    res.status(500).send(err);
   }
 }
