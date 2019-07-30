@@ -1,23 +1,18 @@
-require('dotenv').config()
+require("dotenv").config();
 module.exports = {
   development: {
-    client: "sqlite3",
-    useNullAsDefault: true,
+    client: "pg",
     connection: {
-      filename: "./src/data/split-trip.db3"
+      host: "127.0.0.1",
+      user: "timileyinojo",
+      password: "080timi2323",
+      database: "trip-split"
     },
     migrations: {
       directory: "./src/data/migrations",
       tableName: "dbmigrations"
     },
-    seeds: {
-      directory: "./src/data/seeds"
-    },
-    pool: {
-      afterCreate: (conn, done) => {
-        conn.run("PRAGMA foreign_keys = ON", done);
-      }
-    }
+    seeds: { directory: "./src/data/seeds" }
   },
   testing: {
     client: "sqlite3",
