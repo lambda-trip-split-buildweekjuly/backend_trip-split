@@ -1,25 +1,27 @@
 const db = require("./tripsplit-model");
 const bcrypt = require("bcryptjs");
 
-const {
-  validateUser,
-  validateUserPassword
-} = require("./tripsplit-middleware");
+const { verifyNewUser, authUserLogin } = require("./tripsplit-middleware");
 
 module.exports = server => {
   server.get("/", home);
-  server.post("/api/register", validateUser, register);
-  server.post("/api/login", validateUser, validateUserPassword, login);
+  server.post("/api/register", verifyNewUser, register);
+  server.post("/api/login", authUserLogin, login);
 };
 
 function home(req, res) {
   res.status(200).send("Welcome to Split Trip API");
 }
 
+function login(req, res) {
+  res.status(200).json({ message: "Welcome", token: req.user.token });
+}
+
 function register(req, res) {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
   const data = {
-    email: email,
+    name,
+    email,
     password: bcrypt.hashSync(password, 10)
   };
   db.createUser(data)
@@ -29,14 +31,11 @@ function register(req, res) {
       });
     })
     .catch(err => {
-        console.log(err)
-      if (err.code === "SQLITE_CONSTRAINT") {
+      if (err.constraint === "users_email_unique") {
         return res.status(500).json({ error: "Email Already Exit" });
       }
       res.status(500).send(err);
     });
 }
 
-function login(req, res) {
-  res.status(200).json({ message: "Welcome", token: req.user.token });
-}
+

@@ -3,8 +3,8 @@ const db = require("./tripsplit-model");
 const bcrypt = require("bcryptjs");
 
 module.exports = {
-  validateUser,
-  validateUserPassword
+  verifyNewUser,
+  authUserLogin
 };
 
 function RegexEmailValidation(email) {
@@ -12,7 +12,60 @@ function RegexEmailValidation(email) {
   return RegexEmail.test(String(email).toLowerCase());
 }
 
-function validateUser(req, res, next) {
+// function validateUser(req, res) {
+//   const { email, password, name } = req.body;
+//   if (!req.body) {
+//     return res.status(400).json({
+//       message: "missing user data"
+//     });
+//   } else if (!name || name.trim().length < 1) {
+//     console.log("object");
+//     return res.status(400).json({
+//       message: "missing required name field"
+//     });
+//   } else if (!email || email.trim().length < 1) {
+//     return res.status(400).json({
+//       message: "missing required email field"
+//     });
+//   } else if (!RegexEmailValidation(email)) {
+//     return res.status(400).json({
+//       message: "valid email required"
+//     });
+//   } else if (!password || password.trim().length < 1) {
+//     return res.status(400).json({
+//       message: "missing required password field"
+//     });
+//   }
+// }
+
+function verifyNewUser(req, res, next) {
+  const { email, password, name } = req.body;
+  if (!req.body) {
+    return res.status(400).json({
+      message: "missing user data"
+    });
+  } else if (!name || name.trim().length < 1) {
+    console.log("object");
+    return res.status(400).json({
+      message: "missing required name field"
+    });
+  } else if (!email || email.trim().length < 1) {
+    return res.status(400).json({
+      message: "missing required email field"
+    });
+  } else if (!RegexEmailValidation(email)) {
+    return res.status(400).json({
+      message: "valid email required"
+    });
+  } else if (!password || password.trim().length < 1) {
+    return res.status(400).json({
+      message: "missing required password field"
+    });
+  }
+  next()
+}
+
+async function authUserLogin(req, res, next) {
   const { email, password } = req.body;
   if (!req.body) {
     return res.status(400).json({
@@ -22,26 +75,23 @@ function validateUser(req, res, next) {
     return res.status(400).json({
       message: "missing required email field"
     });
-  } else if (!password || password.trim().length < 1) {
-    return res.status(400).json({
-      message: "missing required password field"
-    });
   } else if (!RegexEmailValidation(email)) {
     return res.status(400).json({
       message: "valid email required"
     });
+  } else if (!password || password.trim().length < 1) {
+    return res.status(400).json({
+      message: "missing required password field"
+    });
   }
-  next();
-}
-
-
-async function validateUserPassword(req, res, next) {
-  const { email, password } = req.body;
   try {
     let userData = await db.getUserByEmail(email);
+    if (!userData) {
+      return res.status(401).json({ error: "Invalid Email" });
+    }
     let compareOutput = bcrypt.compareSync(password, userData.password);
     if (!compareOutput) {
-      return res.status(401).json({ error: "Incorrect Password" });
+      return res.status(401).json({ error: "Invalid Password" });
     }
     const Encrypted = jwt.sign(
       {
@@ -53,7 +103,6 @@ async function validateUserPassword(req, res, next) {
     req.user = { token: Encrypted };
     next();
   } catch (err) {
-    console.log(err);
     return res.status(401).json({ error: "Incorrect Email" });
   }
 }

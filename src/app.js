@@ -11,7 +11,7 @@ const server = express();
 server.use(helmet());
 server.use(cors(), logger);
 server.use(express.json());
-server.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+server.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 configureRoutes(server);
 function logger(req, res, next) {
