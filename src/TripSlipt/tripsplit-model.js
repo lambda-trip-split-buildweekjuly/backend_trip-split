@@ -3,7 +3,8 @@ const db = require("../data/dbConfig");
 module.exports = {
   createUser,
   getUserByEmail,
-  getAllUsers
+  getAllUsers,
+  getUserById
 };
 
 function getUserByEmail(email) {
@@ -25,4 +26,9 @@ function createUser(data) {
 }
 function getAllUsers() {
   return db("users");
+}
+function getUserById(id) {
+  return db("users")
+    .where({ id })
+    .first();
 }

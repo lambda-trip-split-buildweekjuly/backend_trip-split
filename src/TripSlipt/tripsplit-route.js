@@ -67,4 +67,14 @@ async function getAllUsers(req, res) {
   }
 }
 
-function getUserById() {}
+async function getUserById(req, res) {
+  const { id } = req.params;
+  try {
+    const data = await db.getUserById(id);
+    return res.status(200).json({
+      user: data
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
