@@ -32,11 +32,12 @@ function login(req, res) {
 }
 
 function register(req, res) {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
   const data = {
     name,
     email,
-    password: bcrypt.hashSync(password, 10)
+    password: bcrypt.hashSync(password, 10),
+    role
   };
   db.createUser(data)
     .then(dbResponse => {

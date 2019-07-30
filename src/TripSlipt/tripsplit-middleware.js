@@ -62,12 +62,9 @@ function verifyNewUser(req, res, next) {
     return res.status(400).json({
       message: "missing required password field"
     });
-  } else if (
-    !role ||
-    role.trim().length < 1 ||
-    role.toLowerCase() === "user" ||
-    role.toLowerCase() === "admin"
-  ) {
+  }
+  if (!role || role.trim().length < 1 || role.trim().toLowerCase() !== "user") {
+    console.log("kk");
     return res.status(400).json({
       message: "missing or invalid role field"
     });
