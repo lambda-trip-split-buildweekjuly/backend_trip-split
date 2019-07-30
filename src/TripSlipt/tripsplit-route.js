@@ -10,8 +10,8 @@ module.exports = server => {
 
   server.get("/api/users", getAllUsers);
   server.get("/api/users/:id", getUserById);
-  server.patch("/api/users/:id", getUserById);
-  server.delete("/api/users/:id", getUserById);
+  server.patch("/api/users/:id", patchUserById);
+  server.delete("/api/users/:id", deleteUserById);
 
   server.get("/api/trips", getAllTrips);
   server.get("/api/trips/:id", getTripById);
@@ -48,13 +48,32 @@ function register(req, res) {
     });
 }
 
-function getAllTrips() {}
+async function getAllTrips(req, res) {}
 
-function getTripById() {}
+async function getTripById(req, res) {}
 
-function createTrip() {}
+async function createTrip(req, res) {}
 
-function addExpenses() {}
+async function addExpenses(req, res) {}
+
+async function patchUserById(req, res) {}
+
+async function deleteUserById(req, res) {
+  const { id } = req.params;
+  try {
+    const data = await db.deleteUserById(id);
+    if (data === 0) {
+      return res.status(200).json({
+        user: `Delete failed User doesn't exist`
+      });
+    }
+    return res.status(200).json({
+      user: `user with id No-${id} deleted`
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
 
 async function getAllUsers(req, res) {
   try {
