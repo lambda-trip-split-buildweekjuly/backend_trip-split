@@ -5,6 +5,7 @@ exports.up = function(knex) {
       tbl.string("trip_name", 255).notNullable();
       tbl.string("trip_destination", 255).notNullable();
       tbl.integer("trip_no_of_people", 255).notNullable();
+      tbl.boolean("trip_opened").notNullable();
       tbl.string("trip_date", 255).notNullable();
       tbl
         .integer("user_id")
@@ -14,6 +15,7 @@ exports.up = function(knex) {
         .inTable("users")
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
+      tbl.timestamps(false, true);
     })
     .createTable("peoples", tbl => {
       tbl.increments();
@@ -26,6 +28,7 @@ exports.up = function(knex) {
         .inTable("trips")
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
+      tbl.timestamps(false, true);
     })
     .createTable("expenses", tbl => {
       tbl.increments();
@@ -50,6 +53,7 @@ exports.up = function(knex) {
         .inTable("trips")
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
+      tbl.timestamps(false, true);
     });
 };
 

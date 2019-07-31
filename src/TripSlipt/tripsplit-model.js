@@ -49,23 +49,7 @@ function patchUserById(id, data) {
     .update(data)
     .returning("*");
 }
-// function createTrip(data, peoples) {
-//   return db("trips")
-//     .insert(data)
-//     .returning("*")
-//     .then(output => createPeople(output.id, peoples));
-// }
 
-// function createPeople(id, peoples) {
-//   peoples.map(elem => {
-//     const peopleData = {
-//       people_name: elem,
-//       trip_id: id
-//     };
-//     return db("peoples").insert(peopleData);
-//   });
-
-// }
 function createTrip(data, peoples) {
   db.transaction(function(trx) {
     return trx
@@ -78,21 +62,35 @@ function createTrip(data, peoples) {
       });
   })
     .then(function(inserts) {
-      return inserts
+      return inserts;
     })
     .catch(function(error) {
       return error;
     });
 }
-
-function getAllTrips() {
-  return db("trips");
+async function getAllTrips() {
+  const allTrip = await db("trips");
+  const allPeople = await db("peoples");
+  const allExpense = await db("expenses");
+  const computedTrip = allTrip.map(trip => {
+    return {
+      ...trip,
+      people: allPeople.filter(elem => trip.id === elem.trip_id),
+      expense: allExpense.filter(elem => trip.id === elem.trip_id)
+    };
+  });
+  return computedTrip;
 }
 
-function getTripById(id) {
-  return db("trips")
-    .where({ id })
-    .first();
+async function getTripById(id) {
+  const trip = await db("trips").where("id", id);
+  const people = await db("peoples")
+    .select(["id", "people_name"])
+    .where("trip_id", id);
+  const expense = await db("expenses").where("trip_id", id);
+  return { ...trip[0], people, expense };
 }
 
 function addExpenses() {}
+
+
