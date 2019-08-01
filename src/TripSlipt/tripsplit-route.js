@@ -19,6 +19,7 @@ module.exports = server => {
 
   server.get("/api/trips", getAllTrips);
   server.get("/api/trips/:id", getTripById);
+  server.get("/api/trips/user/:userId", getTripByUserId);
   server.post("/api/trips", authUser, createTrip);
   server.post("/api/expenses", addExpenses);
 };
@@ -67,6 +68,16 @@ async function getAllTrips(req, res) {
 async function getTripById(req, res) {
   try {
     const data = await db.getTripById(req.params.id);
+    return res.status(200).json({
+      Trip: data
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
+async function getTripByUserId(req, res) {
+  try {
+    const data = await db.getTripByUserId(req.params.userId);
     return res.status(200).json({
       Trip: data
     });

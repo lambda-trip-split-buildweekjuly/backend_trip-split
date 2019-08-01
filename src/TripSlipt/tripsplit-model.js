@@ -10,7 +10,8 @@ module.exports = {
   createTrip,
   getAllTrips,
   getTripById,
-  addExpenses
+  addExpenses,
+  getTripByUserId
 };
 
 function getUserByEmail(email) {
@@ -147,7 +148,50 @@ async function getTripById(id) {
   };
   return { ...trip[0], people, expense: [await helper1(expense)] };
 }
-// what of it the expense is more than one.. loop
+async function getTripByUserId(id) {
+  const allTrip = await db("trips").select(
+    "id as trip_id",
+    "trip_name",
+    "trip_destination",
+    "trip_no_of_people",
+    "trip_opened",
+    "trip_date",
+    "user_id"
+  ).where('user_id', id);
+  const allPeople = await db("peoples").select("id", "people_name", "trip_id");
+  const allExpense = await db("expenses").select("expense_title", "expense_price", "trip_id", "id");
+
+  const computedTrip = allTrip.map(trip => {
+    return {
+      ...trip,
+      people: allPeople.filter(elem => trip.trip_id === elem.trip_id),
+      expense: allExpense.filter(elem => trip.trip_id === elem.trip_id)
+    };
+  });
+
+  const computedTripTwo = await Promise.all(
+    computedTrip.map(async trip => {
+      let arrayForExpense = [];
+      if (trip.expense.length >= 0) {
+        try {
+          for (let i = 0; i < trip.expense.length; i++) {
+            
+            const memebers = await db("expenseMembers")
+              .select("expense_amount_paid", "expense_id", "people_id")
+              .where("expense_id", trip.expense[i].id);
+            arrayForExpense.push({ ...trip.expense[i], memebers });
+          }
+        } catch (err) {
+          return err;
+        }
+      }
+      trip.expense = arrayForExpense;
+      return trip;
+    })
+  );
+  return computedTripTwo;
+}
+
 
 function addExpenses(expenseDetails, expenseMember) {
   return db
