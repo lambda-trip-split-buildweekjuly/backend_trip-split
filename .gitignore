@@ -1,0 +1,5 @@
+.DS_Store
+node_modules/
+http.http
+.env
+notes.js
