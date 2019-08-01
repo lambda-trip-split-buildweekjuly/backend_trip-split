@@ -76,18 +76,25 @@ async function getTripById(req, res) {
 }
 
 async function createTrip(req, res) {
-  const { trip_name, trip_destination, trip_date, peoples } = req.body;
+  const {
+    trip_name,
+    trip_destination,
+    trip_date,
+    peoples,
+    trip_opened
+  } = req.body;
   const tripData = {
-    trip_name: trip_name,
-    trip_destination: trip_destination,
+    trip_name,
+    trip_destination,
     trip_no_of_people: peoples.length,
-    trip_date: trip_date,
-    user_id: req.user.token["id"]
+    trip_date,
+    user_id: req.user.token["id"],
+    trip_opened
   };
   try {
     const data = await db.createTrip(tripData, peoples);
     return res.status(201).json({
-      trip: 'Trip Saved'
+      trip: `Trip saved with ${data.rowCount} People`
     });
   } catch (err) {
     res.status(500).send(err);
@@ -95,13 +102,13 @@ async function createTrip(req, res) {
 }
 
 async function addExpenses(req, res) {
+  const { expense_title, expense_price, trip_id } = req.body;
+  const expenseDetails = { expense_title, expense_price, trip_id };
+  const expenseMembers = req.body.expense_members
   try {
-    const data = await db.addExpenses({
-      ...req.body,
-      user_id: req.user.token["id"]
-    });
+    const data = await db.addExpenses(expenseDetails, expenseMembers);
     return res.status(201).json({
-      trip: data
+      expense: `Expenses saved with ${data.rowCount} Members`
     });
   } catch (err) {
     res.status(500).send(err);

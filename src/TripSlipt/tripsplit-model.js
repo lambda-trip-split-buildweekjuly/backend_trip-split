@@ -51,46 +51,118 @@ function patchUserById(id, data) {
 }
 
 function createTrip(data, peoples) {
-  db.transaction(function(trx) {
-    return trx
-      .insert(data)
-      .into("trips")
-      .returning("*")
-      .then(function(output) {
-        peoples.forEach(elem => (elem.trip_id = output[0].id));
-        return trx("peoples").insert(peoples);
-      });
-  })
-    .then(function(inserts) {
-      return inserts;
+  return db
+    .transaction(function(trx) {
+      return trx
+        .insert(data)
+        .into("trips")
+        .returning("*")
+        .then(function(output) {
+          peoples.forEach(elem => (elem.trip_id = output[0].id));
+          return trx("peoples").insert(peoples);
+        });
     })
     .catch(function(error) {
       return error;
     });
 }
 async function getAllTrips() {
-  const allTrip = await db("trips");
-  const allPeople = await db("peoples");
-  const allExpense = await db("expenses");
+  const allTrip = await db("trips").select(
+    "id as trip_id",
+    "trip_name",
+    "trip_destination",
+    "trip_no_of_people",
+    "trip_opened",
+    "trip_date",
+    "user_id"
+  );
+  const allPeople = await db("peoples").select("id", "people_name", "trip_id");
+  const allExpense = await db("expenses").select("expense_title", "expense_price", "trip_id", "id");
+
   const computedTrip = allTrip.map(trip => {
     return {
       ...trip,
-      people: allPeople.filter(elem => trip.id === elem.trip_id),
-      expense: allExpense.filter(elem => trip.id === elem.trip_id)
+      people: allPeople.filter(elem => trip.trip_id === elem.trip_id),
+      expense: allExpense.filter(elem => trip.trip_id === elem.trip_id)
     };
   });
-  return computedTrip;
+
+  const computedTripTwo = await Promise.all(
+    computedTrip.map(async trip => {
+      let arrayForExpense = [];
+      if (trip.expense.length >= 0) {
+        try {
+          for (let i = 0; i < trip.expense.length; i++) {
+            
+            const memebers = await db("expenseMembers")
+              .select("expense_amount_paid", "expense_id", "people_id")
+              .where("expense_id", trip.expense[i].id);
+            arrayForExpense.push({ ...trip.expense[i], memebers });
+          }
+        } catch (err) {
+          return err;
+        }
+      }
+      trip.expense = arrayForExpense;
+      return trip;
+    })
+  );
+  return computedTripTwo;
 }
 
 async function getTripById(id) {
-  const trip = await db("trips").where("id", id);
+  const trip = await db("trips")
+    .select(
+      "id as trip_id",
+      "trip_name",
+      "trip_destination",
+      "trip_no_of_people",
+      "trip_opened",
+      "trip_date",
+      "user_id"
+    )
+    .where("id", id);
   const people = await db("peoples")
     .select(["id", "people_name"])
     .where("trip_id", id);
-  const expense = await db("expenses").where("trip_id", id);
-  return { ...trip[0], people, expense };
+  const expense = await db("expenses")
+    .select("expense_title", "expense_price", "trip_id", "id")
+    .where("trip_id", id);
+
+  const helper1 = async expense => {
+    let arrayForExpense = [];
+    if (expense.length >= 0) {
+      try {
+        for (let i = 0; i < expense.length; i++) {
+          const members = await db("expenseMembers")
+            .select("expense_amount_paid", "expense_id", "people_id")
+            .where("expense_id", expense[i].id);
+          arrayForExpense.push({ ...expense[i], members });
+        }
+      } catch (err) {
+        return err;
+      }
+    }
+    return arrayForExpense;
+  };
+  return { ...trip[0], people, expense: [await helper1(expense)] };
 }
+// what of it the expense is more than one.. loop
 
-function addExpenses() {}
-
-
+function addExpenses(expenseDetails, expenseMember) {
+  return db
+    .transaction(function(trx) {
+      return trx
+        .insert(expenseDetails)
+        .into("expenses")
+        .returning("*")
+        .then(function(output) {
+          console.log(output);
+          expenseMember.forEach(elem => (elem.expense_id = output[0].id));
+          return trx("expenseMembers").insert(expenseMember);
+        });
+    })
+    .catch(function(error) {
+      return error;
+    });
+}

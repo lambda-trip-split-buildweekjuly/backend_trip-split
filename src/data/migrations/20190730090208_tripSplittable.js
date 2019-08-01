@@ -34,17 +34,6 @@ exports.up = function(knex) {
       tbl.increments();
       tbl.string("expense_title", 255).notNullable();
       tbl.integer("expense_price", 11).notNullable();
-      tbl.integer("expense_amount_paid", 11).notNullable();
-      tbl.integer("expense_amount_owned", 11).notNullable();
-      tbl.integer("expense_amount_owning", 11).notNullable();
-      tbl
-        .integer("people_id")
-        .unsigned()
-        .notNullable()
-        .references("id")
-        .inTable("peoples")
-        .onUpdate("CASCADE")
-        .onDelete("CASCADE");
       tbl
         .integer("trip_id")
         .unsigned()
@@ -54,11 +43,33 @@ exports.up = function(knex) {
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
       tbl.timestamps(false, true);
+    })
+    .createTable("expenseMembers", tbl => {
+      tbl.increments();
+      tbl.integer("expense_amount_paid", 11).notNullable();
+      tbl
+        .integer("expense_id")
+        .unsigned()
+        .notNullable()
+        .references("id")
+        .inTable("expenses")
+        .onUpdate("CASCADE")
+        .onDelete("CASCADE");
+      tbl
+        .integer("people_id")
+        .unsigned()
+        .notNullable()
+        .references("id")
+        .inTable("peoples")
+        .onUpdate("CASCADE")
+        .onDelete("CASCADE");
+      tbl.timestamps(false, true);
     });
 };
 
 exports.down = function(knex, Promise) {
   return knex.schema
+    .dropTableIfExists("expenseMembers")
     .dropTableIfExists("expenses")
     .dropTableIfExists("peoples")
     .dropTableIfExists("trips");
