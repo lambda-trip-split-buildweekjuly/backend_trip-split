@@ -17,11 +17,11 @@ module.exports = server => {
   server.patch("/api/users/:id", authUser, updateUserById);
   server.delete("/api/users/:id", authUser, deleteUserById);
 
-  server.get("/api/trips", getAllTrips);
-  server.get("/api/trips/:id", getTripById);
-  server.get("/api/trips/user/:userId", getTripByUserId);
+  server.get("/api/trips", authUser, getAllTrips);
+  server.get("/api/trips/:id", authUser, getTripById);
+  server.get("/api/trips/user/:userId", authUser, getTripByUserId);
   server.post("/api/trips", authUser, createTrip);
-  server.post("/api/expenses", addExpenses);
+  server.post("/api/expenses", authUser, addExpenses);
 };
 
 function home(req, res) {
@@ -29,7 +29,9 @@ function home(req, res) {
 }
 
 function login(req, res) {
-  res.status(200).json({ message: "Welcome", token: req.user.token });
+  res
+    .status(200)
+    .json({ message: "Welcome", user_id: req.user_id, token: req.user.token });
 }
 
 function register(req, res) {
@@ -115,7 +117,7 @@ async function createTrip(req, res) {
 async function addExpenses(req, res) {
   const { expense_title, expense_price, trip_id } = req.body;
   const expenseDetails = { expense_title, expense_price, trip_id };
-  const expenseMembers = req.body.expense_members
+  const expenseMembers = req.body.expense_members;
   try {
     const data = await db.addExpenses(expenseDetails, expenseMembers);
     return res.status(201).json({
